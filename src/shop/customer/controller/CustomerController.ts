@@ -6,15 +6,15 @@ import { CustomerInteractor } from "../interactors/CustomerInteractor";
 @injectable()
 export class CustomerController {
   constructor(
-    @inject(INTERFACE_TYPE.CustomerRepository) private interator: CustomerInteractor
+    @inject(INTERFACE_TYPE.CustomerInteractor) private interactor: CustomerInteractor
   ) {
-    this.interator = interator
+    this.interactor = interactor
   }
 
   async createCustomer(req: Request, res: Response, next: NextFunction) {
     try {
       const data = req.body
-      const customer = this.interator.onCreateCustomer(data)
+      const customer = this.interactor.onCreateCustomer(data)
       return customer
     } catch (error) {
       next(error)
@@ -23,7 +23,12 @@ export class CustomerController {
 
   getAllCustomer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const customer = await this.interator.getAllCustomer()
+      console.log('customer')
+      const customer = await this.interactor.getAllCustomer()
+      res.status(200).json({
+        message: "customers retrieved successfully",
+        data: customer
+      })
       return customer
     } catch (error) {
       next(error)

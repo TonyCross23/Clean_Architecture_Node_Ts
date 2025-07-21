@@ -7,7 +7,10 @@ const customerRoute = Router()
 
 const controller = container.get<CustomerController>(INTERFACE_TYPE.CustomerController)
 
-customerRoute.post('/customer', controller.createCustomer)
-customerRoute.get('/', controller.getAllCustomer)
+// customerRoute.get("/message", (req, res) => {
+//   res.json({ message: "Hello mm" })
+// })
+customerRoute.post("/create", controller.createCustomer.bind((controller)))
+customerRoute.get("/", controller.getAllCustomer)
 
 export default customerRoute

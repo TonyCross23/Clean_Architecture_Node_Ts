@@ -16,9 +16,11 @@ app.use("/api/v1", router)
 app.use("/api/v1", authRouter)
 app.use("/api/v1", testRoute)
 app.use("/api/v1", productRoute)
-app.use("/api/v1", customerRoute)
+app.use("/api/v1/customer", customerRoute)
 
 app.use(errorHandler)
+
+var progressBar = require('./config/progressBar');
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
