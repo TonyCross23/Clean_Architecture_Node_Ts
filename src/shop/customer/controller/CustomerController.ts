@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { INTERFACE_TYPE } from "../utils";
 import { CustomerInteractor } from "../interactors/CustomerInteractor";
+import { catchAsync } from "../../../test/utils/catchAsync";
+import { HttpStatusCodes } from "../../../config/HttpStatusCode";
 
 @injectable()
 export class CustomerController {
@@ -21,17 +23,12 @@ export class CustomerController {
     }
   }
 
-  getAllCustomer = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      console.log('customer')
-      const customer = await this.interactor.getAllCustomer()
-      res.status(200).json({
-        message: "customers retrieved successfully",
-        data: customer
-      })
-      return customer
-    } catch (error) {
-      next(error)
-    }
-  }
+  getAllCustomer = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const customer = await this.interactor.getAllCustomer()
+    return res.status(HttpStatusCodes.CREATED).json({
+      success: true,
+      message: "Customers",
+      data: customer
+    })
+  })
 }
