@@ -4,11 +4,13 @@ import morgan from "morgan";
 import log from "./logger/log";
 import router from "./router";
 import { errorHandler } from "./middlewares/appError";
+import bodyParser from 'body-parser';
 
 const PORT = process.env.PORT || 6000;
 
 const app = express();
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(morgan("dev", {
   stream: {
