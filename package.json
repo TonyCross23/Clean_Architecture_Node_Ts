@@ -14,6 +14,7 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.0.13",
     "nodemon": "^3.1.10",
@@ -23,14 +24,19 @@
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "@redis/client": "^5.8.2",
     "bcrypt": "^6.0.0",
+    "connect-redis": "^9.0.0",
     "dayjs": "^1.11.13",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
+    "express-session": "^1.18.2",
     "inversify": "^7.5.4",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
+    "redis": "^5.8.2",
     "reflect-metadata": "^0.2.2",
     "zod": "^4.0.5"
   }

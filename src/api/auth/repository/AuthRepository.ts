@@ -1,11 +1,14 @@
 import { PrismaClient } from "@prisma/client";
-import { User } from "../entities/auth.entity";
+import { AuthResponse, User } from "../entities/auth.entity";
 import { IAuthRepository } from "../useCase/interface/IAuthRepository";
 import { AppError } from "../../../errors/httpErrors";
 import { HTTP_STATUS } from "../../../configs/httpStatusCodes";
 import bcrypt from "bcrypt";
 import { inject, injectable } from "inversify";
 import { INTERFACE_TYPE } from "../utils/appConst";
+import { generateAccessToken, generateNewAccessToken, generateRefreshToken, saveRefreshToken } from "../utils/jwt";
+import { RedisClientType } from "redis";
+import jwt from "jsonwebtoken"
 
 @injectable()
 export class AuthRepository implements IAuthRepository {
@@ -16,8 +19,27 @@ export class AuthRepository implements IAuthRepository {
         this.prisma = prisma;
     }
 
-    login(email: string, password: string): Promise<User> {
-        throw new Error("Method not implemented.");
+    async login(data: User, redis: RedisClientType): Promise<AuthResponse> {
+        const user = await this.prisma.user.findFirst({
+            where: {email: data.email}
+        })
+
+        if(!user) {
+           throw new AppError(HTTP_STATUS.NOT_FOUND, "user not found")
+        }
+
+        const isPasswordValid = bcrypt.compareSync(data.password, user.password)
+
+        if(!isPasswordValid) {
+            throw new AppError(HTTP_STATUS.BAD_REQUEST, "Invalid email or password")
+        }
+
+        const accessToken = generateAccessToken(user.id)
+        const refreshToken = generateRefreshToken(user.id)
+
+        await saveRefreshToken(redis, user.id, refreshToken)
+
+        return {user, accessToken, refreshToken}
     }
     async register(data: User): Promise<User> {
         
@@ -46,11 +68,22 @@ export class AuthRepository implements IAuthRepository {
         return safeUser as User;
 
     }
-    logout(token: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async logout(refreshToken: string, accessToken: string, redis: RedisClientType): Promise<void> {
+       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as { userId: number };
+       await redis.del(`refresh:${decoded.userId}`);
+
+       const accessDecoded = jwt.decode(accessToken) as { exp: number };
+      if (accessDecoded?.exp) {
+        const ttl = accessDecoded.exp - Math.floor(Date.now() / 1000);
+        if (ttl > 0) {
+          await redis.setEx(`blacklist:${accessToken}`, ttl, "revoked");
+        }
+      }
+       
     }
-    refreshToken(token: string): Promise<string> {
-        throw new Error("Method not implemented.");
+    async refreshToken(refreshToken: string, redis: RedisClientType): Promise<string> {
+        const newAccessToken = await generateNewAccessToken(redis, refreshToken)
+        return newAccessToken
     }
     findUserByEmail(email: string): Promise<User> {
         throw new Error("Method not implemented.");
