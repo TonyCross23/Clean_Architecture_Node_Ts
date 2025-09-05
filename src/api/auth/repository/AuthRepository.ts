@@ -69,10 +69,15 @@ export class AuthRepository implements IAuthRepository {
 
     }
     async logout(refreshToken: string, accessToken: string, redis: RedisClientType): Promise<void> {
-       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as { userId: number };
+       const decoded = jwt.verify(
+            refreshToken,
+            process.env.JWT_REFRESH_SECRET!,
+            { ignoreExpiration: true }
+        ) as { userId: number };
+
        await redis.del(`refresh:${decoded.userId}`);
 
-       const accessDecoded = jwt.decode(accessToken) as { exp: number };
+       const accessDecoded = jwt.decode(accessToken) as { exp: number } | null;
       if (accessDecoded?.exp) {
         const ttl = accessDecoded.exp - Math.floor(Date.now() / 1000);
         if (ttl > 0) {
