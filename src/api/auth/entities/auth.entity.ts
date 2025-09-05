@@ -7,3 +7,9 @@ export class User {
       public id?: number,
   ) {}
 }
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}

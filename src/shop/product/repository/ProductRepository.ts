@@ -1,4 +1,4 @@
-import prisma from "../../libs/prismaClient";
+import prisma from "../../../libs/prismaClient";
 import { Product } from "../entities/Product.entitie";
 import { IProductRepository } from "../interfaces/IProudctRepository";
 
