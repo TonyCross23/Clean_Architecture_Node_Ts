@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { catchAsync } from "../../../configs/catchAsync";
 import { IAuthInterface } from "../useCase/interface/IAuthInterface";
 import { HTTP_STATUS } from "../../../configs/httpStatusCodes";
-import { inject, injectable, unmanaged } from "inversify";
+import { inject, injectable } from "inversify";
 import { INTERFACE_TYPE } from "../utils/appConst";
 import { RedisClientType } from "redis";
 
